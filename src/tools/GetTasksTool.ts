@@ -10,7 +10,7 @@ import { EventType, createEvent } from '../events/EventTypes.js';
 import { StructuredLogger } from '../logging/StructuredLogger.js';
 import { MCPTool, ToolResult, ToolContext, MCPError } from '../types/index.js';
 
-export interface PopTaskArgs {
+export interface GetTasksArgs {
   project_id?: string;
   user_id?: string;
   job_id?: string;
@@ -45,17 +45,17 @@ export interface TaskResult {
   reference_data?: any;
 }
 
-export class PopTaskTool implements MCPTool<PopTaskArgs> {
-  name = 'pop_task';
+export class GetTasksTool implements MCPTool<GetTasksArgs> {
+  name = 'get_tasks';
   description =
-    'Retrieve top priority task or bug based on priority and age, with filtering options';
+    'Retrieve top priority tasks or bugs based on priority and age, with filtering options';
 
   inputSchema = {
     type: 'object',
     properties: {
       project_id: {
         type: 'string',
-        description: 'Filter by specific project ID',
+        description: 'Filter by specific project ID (required)',
       },
       user_id: {
         type: 'string',
@@ -84,6 +84,7 @@ export class PopTaskTool implements MCPTool<PopTaskArgs> {
         description: 'Filter by module name in reference_data or file_path',
       },
     },
+    required: ['project_id'],
   };
 
   constructor(
@@ -93,14 +94,14 @@ export class PopTaskTool implements MCPTool<PopTaskArgs> {
     private eventCollector?: EventCollector
   ) {}
 
-  async execute(args: PopTaskArgs, context?: ToolContext): Promise<ToolResult> {
+  async execute(args: GetTasksArgs, context?: ToolContext): Promise<ToolResult> {
     const startTime = Date.now();
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const traceId =
-      context?.traceId || `pop_task_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
+      context?.traceId || `get_tasks_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
 
     this.logger.info(
-      'PopTask request received',
+      'GetTasks request received',
       {
         requestId,
         traceId,
@@ -109,20 +110,50 @@ export class PopTaskTool implements MCPTool<PopTaskArgs> {
       'PopTaskTool'
     );
 
+    // Validate required project_id parameter
+    if (!args.project_id) {
+      const mcpError: MCPError = {
+        code: 'MISSING_PROJECT_ID',
+        message: 'project_id is required. Check your .env file for DEFAULT_PROJECT_ID or pass it in the context.',
+        details: {
+          requestId,
+          traceId,
+          hint: 'Set DEFAULT_PROJECT_ID in your .env file or provide project_id parameter',
+        },
+      };
+
+      this.logger.error('GetTasks failed - missing project_id', mcpError, 'GetTasksTool');
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error: ${mcpError.message}`,
+          },
+        ],
+        metadata: {
+          error: mcpError,
+          requestId,
+          traceId,
+          duration_ms: 0,
+        },
+      };
+    }
+
     try {
       // Add explicit timeout wrapper around the entire operation
       const results = await Promise.race([
         this.getTopTasks(args, requestId, traceId),
         new Promise<never>((_, reject) => {
           setTimeout(() => {
-            reject(new Error('PopTask operation timed out after 15 seconds'));
+            reject(new Error('GetTasks operation timed out after 15 seconds'));
           }, 15000); // 15 second total timeout
         }),
       ]);
       const duration = Date.now() - startTime;
 
       this.logger.info(
-        'PopTask completed successfully',
+        'GetTasks completed successfully',
         {
           requestId,
           traceId,
@@ -205,7 +236,7 @@ export class PopTaskTool implements MCPTool<PopTaskArgs> {
   }
 
   private async getTopTasks(
-    args: PopTaskArgs,
+    args: GetTasksArgs,
     requestId: string,
     traceId: string
   ): Promise<TaskResult[]> {

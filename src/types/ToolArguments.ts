@@ -50,8 +50,8 @@ export interface CreateManagedTableArgs {
   additional_columns?: string;
 }
 
-// Pop Task Arguments
-export interface PopTaskArgs {
+// Get Tasks Arguments
+export interface GetTasksArgs {
   project_id?: string;
   user_id?: string;
   task_type?: 'user' | 'project';
@@ -108,7 +108,7 @@ export type ToolArguments =
   | TableInspectorArgs
   | DatabaseCatalogArgs
   | CreateManagedTableArgs
-  | PopTaskArgs
+  | GetTasksArgs
   | CreateTaskArgs
   | CreateJobArgs
   | HelpArgs;

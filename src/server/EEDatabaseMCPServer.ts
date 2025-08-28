@@ -28,7 +28,7 @@ import { CreateManagedTableTool } from '../tools/CreateManagedTableTool.js';
 import { CreateTaskTool } from '../tools/CreateTaskTool.js';
 import { DatabaseCatalogTool } from '../tools/DatabaseCatalogTool.js';
 import { HelpTool } from '../tools/HelpTool.js';
-import { PopTaskTool } from '../tools/PopTaskTool.js';
+import { GetTasksTool } from '../tools/GetTasksTool.js';
 import { QueryExecutorTool } from '../tools/QueryExecutorTool.js';
 import { SchemaExplorerTool } from '../tools/SchemaExplorerTool.js';
 import { TableInspectorTool } from '../tools/TableInspectorTool.js';
@@ -212,9 +212,9 @@ export class EEDatabaseMCPServer {
         this.config.server.enableManagedTables
       );
 
-      // Create PopTaskTool
-      this.logger.trace('Creating PopTaskTool', {}, 'EEDatabaseMCPServer');
-      const popTaskTool = new PopTaskTool(
+      // Create GetTasksTool
+      this.logger.trace('Creating GetTasksTool', {}, 'EEDatabaseMCPServer');
+      const getTasksTool = new GetTasksTool(
         this.connectionManager,
         this.validator,
         this.logger,
@@ -247,7 +247,7 @@ export class EEDatabaseMCPServer {
       this.tools.set(schemaExplorer.name, schemaExplorer);
       this.tools.set(tableInspector.name, tableInspector);
       this.tools.set(databaseCatalog.name, databaseCatalog);
-      this.tools.set(popTaskTool.name, popTaskTool);
+      this.tools.set(getTasksTool.name, getTasksTool);
       this.tools.set(createTaskTool.name, createTaskTool);
       this.tools.set(createJobTool.name, createJobTool);
 
