@@ -35,27 +35,28 @@ export interface TaskResult {
   file_path?: string;
   job_id?: string;
   job_description?: string;
-  job_context?: any;
+  job_context?: Record<string, unknown>;
   task_prompt?: string;
   task_name?: string;
   task_priority?: number;
   started_at?: string;
   modified_at?: string;
   modified_by?: string;
-  reference_data?: any;
+  reference_data?: Record<string, unknown>;
 }
 
 export class GetTasksTool implements MCPTool<GetTasksArgs> {
   name = 'get_tasks';
   description =
-    'Retrieve top priority tasks or bugs based on priority and age, with filtering options';
+    'Retrieve top priority tasks or bugs based on priority and age, with filtering options. Requires project_id - use query tool to find valid project IDs from projects table.';
 
   inputSchema = {
     type: 'object',
     properties: {
       project_id: {
         type: 'string',
-        description: 'Filter by specific project ID (required)',
+        description:
+          'Filter by specific project ID (required). Example: PROJ-AUS1-000009. Query projects table to find valid IDs.',
       },
       user_id: {
         type: 'string',
@@ -114,11 +115,12 @@ export class GetTasksTool implements MCPTool<GetTasksArgs> {
     if (!args.project_id) {
       const mcpError: MCPError = {
         code: 'MISSING_PROJECT_ID',
-        message: 'project_id is required. Check your .env file for DEFAULT_PROJECT_ID or pass it in the context.',
+        message:
+          'project_id is required. Check your .env file for DEFAULT_PROJECT_ID or look in the auth context.',
         details: {
           requestId,
           traceId,
-          hint: 'Set DEFAULT_PROJECT_ID in your .env file or provide project_id parameter',
+          hint: 'Look for DEFAULT_PROJECT_ID in your .env file or provide project_id parameter',
         },
       };
 
