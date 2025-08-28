@@ -83,7 +83,7 @@ export class DatabaseCatalogTool implements MCPTool<DatabaseCatalogArgs> {
         WHERE 1=1
       `;
 
-      const params: any[] = [];
+      const params: unknown[] = [];
 
       // Add system database filter
       if (!includeSystemDatabases) {
@@ -102,7 +102,7 @@ export class DatabaseCatalogTool implements MCPTool<DatabaseCatalogArgs> {
       const result = await this.connectionManager.executeQuery(query, params);
 
       // Get statistics if requested
-      let statistics: Record<string, any> = {};
+      let statistics: Record<string, Record<string, unknown>> = {};
       if (includeStatistics) {
         try {
           const statsResult = await this.connectionManager.executeQuery(`

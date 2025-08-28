@@ -48,7 +48,7 @@ export interface TaskResult {
 export class GetTasksTool implements MCPTool<GetTasksArgs> {
   name = 'get_tasks';
   description =
-    'Retrieve top priority tasks or bugs based on priority and age, with filtering options. Requires project_id - use query tool to find valid project IDs from projects table.';
+    'Retrieve top priority tasks or bugs based on priority and age, with filtering options. Requires project_id - Check your .env file for DEFAULT_PROJECT_ID or you auth context - use query tool to find valid project IDs from projects table.';
 
   inputSchema = {
     type: 'object',
@@ -56,7 +56,7 @@ export class GetTasksTool implements MCPTool<GetTasksArgs> {
       project_id: {
         type: 'string',
         description:
-          'Filter by specific project ID (required). Example: PROJ-AUS1-000009. Query projects table to find valid IDs.',
+          'Filter by specific project ID (required). Example: PROJ-AUS1-000009. Check your .env file for DEFAULT_PROJECT_ID or you auth context.',
       },
       user_id: {
         type: 'string',
