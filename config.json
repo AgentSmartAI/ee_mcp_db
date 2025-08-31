@@ -1,0 +1,66 @@
+{
+  "app": {
+    "name": "ee-postgres",
+    "displayName": "EE Postgres MCP Server",
+    "version": "auto"
+  },
+  "server": {
+    "port": 8102,
+    "cors": {
+      "enabled": true,
+      "origins": ["*"]
+    },
+    "queryTimeoutMs": 30000,
+    "maxResultRows": 10000,
+    "auth": {
+      "enabled": false,
+      "apiKey": "PROJ-AUS1-000003",
+      "allowedIPs": []
+    },
+    "enableWriteOperations": true,
+    "enableManagedTables": false
+  },
+  "database": {
+    "host": "172.21.89.238",
+    "port": 5432,
+    "database": "documents",
+    "schema": "documents",
+    "user": "postgres",
+    "password": "dasvick01!!",
+    "ssl": false,
+    "poolConfig": {
+      "max": 20,
+      "idleTimeoutMillis": 30000,
+      "connectionTimeoutMillis": 5000
+    },
+    "usePreparedStatements": true
+  },
+  "logging": {
+    "level": "DEBUG",
+    "directory": "./logs",
+    "maxFiles": 7,
+    "maxSize": "20m"
+  },
+  "features": {
+    "events": {
+      "enabled": true,
+      "processors": ["QueryOptimization", "ErrorRecovery", "Metrics"],
+      "bufferSize": 10000
+    },
+    "resources": {
+      "enabled": false,
+      "cacheEnabled": true,
+      "cacheTTL": 300
+    },
+    "prompts": {
+      "enabled": false,
+      "customPromptsPath": null
+    },
+    "optimization": {
+      "enabled": false,
+      "autoOptimize": false,
+      "learningEnabled": false
+    }
+  },
+  "environment": "development"
+}

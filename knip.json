@@ -1,0 +1,11 @@
+{
+  "workspaces": {
+    ".": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"],
+      "ignore": ["dist/**", "node_modules/**", "**/*.test.ts", "**/*.spec.ts"]
+    }
+  },
+  "ignoreDependencies": ["@types/*"],
+  "ignoreExportsUsedInFile": true
+}
