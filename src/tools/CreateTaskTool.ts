@@ -20,7 +20,6 @@ export interface CreateTaskArgs {
   task_priority?: number;
   task_prompt?: string;
   task_status?: string;
-  parent_type?: string;
   file_path?: string;
   session_id?: string;
   reference_data?: Record<string, any>;
@@ -91,10 +90,6 @@ export class CreateTaskTool implements MCPTool<CreateTaskArgs> {
         type: 'string',
         description: 'Initial task status (default: pending)',
         default: 'pending',
-      },
-      parent_type: {
-        type: 'string',
-        description: 'Type of parent entity',
       },
       file_path: {
         type: 'string',
@@ -253,13 +248,12 @@ export class CreateTaskTool implements MCPTool<CreateTaskArgs> {
         task_priority,
         task_prompt,
         task_status,
-        parent_type,
         file_path,
         session_id,
         reference_data,
         callback_config
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
       ) RETURNING 
         task_id,
         task_name,
@@ -284,7 +278,6 @@ export class CreateTaskTool implements MCPTool<CreateTaskArgs> {
       args.task_priority || 25,
       args.task_prompt || null,
       args.task_status || 'pending',
-      args.parent_type || null,
       args.file_path || null,
       args.session_id || null,
       args.reference_data ? JSON.stringify(args.reference_data) : '{}',

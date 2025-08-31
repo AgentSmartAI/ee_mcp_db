@@ -71,7 +71,6 @@ export interface CreateTaskArgs {
   task_priority?: number;
   task_prompt?: string;
   task_status?: string;
-  parent_type?: string;
   file_path?: string;
   parent_task_id?: string;
   session_id?: string;
