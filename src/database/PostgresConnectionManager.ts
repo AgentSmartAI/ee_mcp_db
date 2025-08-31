@@ -3,7 +3,7 @@
  * Handles connection failures, retries, and health monitoring.
  */
 
-import { Pool, PoolConfig, PoolClient } from 'pg';
+import { Pool, PoolConfig, PoolClient, QueryResult } from 'pg';
 
 import { DatabaseConfig } from '../config/DatabaseConfig.js';
 import { StructuredLogger } from '../logging/StructuredLogger.js';
@@ -29,7 +29,7 @@ export class PostgresConnectionManager {
   private pool: Pool | null = null;
   private config: PoolConfig;
   private logger: StructuredLogger;
-  private healthCheckInterval: NodeJS.Timeout | null = null;
+  private healthCheckInterval: ReturnType<typeof setInterval> | null = null;
   private lastHealthCheck: ConnectionHealth | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -277,7 +277,7 @@ export class PostgresConnectionManager {
         mcpError.message || (error instanceof Error ? error.message : String(error));
       const errorToThrow = new Error(errorMessage);
       // Assign all MCPError properties except message (to avoid overwriting)
-      const { message, ...mcpErrorProps } = mcpError;
+      const { message: _message, ...mcpErrorProps } = mcpError;
       Object.assign(errorToThrow, mcpErrorProps);
       throw errorToThrow;
     }
@@ -537,19 +537,11 @@ export class PostgresConnectionManager {
    */
   async executeQueryWithPreparedStatement(
     sql: string,
-    params?: any[],
+    params?: unknown[],
     timeoutMs?: number
-  ): Promise<{
-    rows: any[];
-    rowCount: number;
-    command: string;
-    oid: number;
-    fields: any[];
-    executionTime: number;
-    preparedStatement?: boolean;
-  }> {
+  ): Promise<QueryResult<any> & { executionTime: number; preparedStatement?: boolean }> {
     const queryId = `query_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const queryStartTime = Date.now();
+    const _queryStartTime = Date.now();
 
     // Check if we should use prepared statements
     if (!this.usePreparedStatements || !params || params.length === 0) {
@@ -654,18 +646,11 @@ export class PostgresConnectionManager {
    */
   async executeQuery(
     sql: string,
-    params?: any[],
+    params?: unknown[],
     timeoutMs?: number
-  ): Promise<{
-    rows: any[];
-    rowCount: number;
-    command: string;
-    oid: number;
-    fields: any[];
-    executionTime: number;
-  }> {
+  ): Promise<QueryResult<any> & { executionTime: number }> {
     const queryId = `query_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const queryStartTime = Date.now();
+    const _queryStartTime = Date.now();
 
     this.logger.trace(
       'Executing query',
@@ -826,7 +811,7 @@ export class PostgresConnectionManager {
           {
             queryId,
             error: mcpError,
-            executionTime: Date.now() - queryStartTime,
+            executionTime: Date.now() - _queryStartTime,
             timeoutMs,
           },
           'PostgresConnectionManager'
@@ -865,7 +850,7 @@ export class PostgresConnectionManager {
         mcpError.message || (error instanceof Error ? error.message : String(error));
       const errorToThrow = new Error(errorMessage);
       // Assign all MCPError properties except message (to avoid overwriting)
-      const { message, ...mcpErrorProps } = mcpError;
+      const { message: _message, ...mcpErrorProps } = mcpError;
       Object.assign(errorToThrow, mcpErrorProps);
       throw errorToThrow;
     } finally {

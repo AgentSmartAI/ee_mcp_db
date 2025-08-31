@@ -53,8 +53,8 @@ export interface CreateManagedTableArgs {
 // Get Tasks Arguments
 export interface GetTasksArgs {
   project_id?: string;
+  job_id?: string;
   user_id?: string;
-  task_type?: 'user' | 'project';
   inc_bugs?: boolean;
   search_string?: string;
   module_name?: string;

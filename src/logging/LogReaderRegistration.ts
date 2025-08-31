@@ -19,7 +19,7 @@ export interface ServiceRegistration {
   log_pattern: string;
   started_at: string;
   version?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class LogReaderRegistration {
@@ -141,7 +141,7 @@ export class LogReaderRegistration {
       );
     } catch (error) {
       // If file doesn't exist, that's fine
-      if ((error as any)?.code === 'ENOENT') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
         this.logger.debug(
           'Registration file already removed',
           {

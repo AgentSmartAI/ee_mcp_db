@@ -12,9 +12,8 @@ import { MCPTool, ToolResult, ToolContext, MCPError } from '../types/index.js';
 
 export interface GetTasksArgs {
   project_id?: string;
-  user_id?: string;
   job_id?: string;
-  task_type?: 'user' | 'project';
+  user_id?: string;
   inc_bugs?: boolean;
   search_string?: string;
   module_name?: string;
@@ -48,7 +47,7 @@ export interface TaskResult {
 export class GetTasksTool implements MCPTool<GetTasksArgs> {
   name = 'get_tasks';
   description =
-    'Retrieve top priority tasks or bugs based on priority and age, with filtering options. Requires project_id - Check your .env file for DEFAULT_PROJECT_ID or you auth context - use query tool to find valid project IDs from projects table.';
+    'Retrieve top priority tasks or bugs based on priority and age, with filtering options. Requires either project_id (for all project tasks) or job_id (for specific job tasks).';
 
   inputSchema = {
     type: 'object',
@@ -56,20 +55,16 @@ export class GetTasksTool implements MCPTool<GetTasksArgs> {
       project_id: {
         type: 'string',
         description:
-          'Filter by specific project ID (required). Example: PROJ-AUS1-000009. Check your .env file for DEFAULT_PROJECT_ID or you auth context.',
+          'Filter by specific project ID. Example: PROJ-AUS1-000009. Check your .env file for DEFAULT_PROJECT_ID.',
+      },
+      job_id: {
+        type: 'string',
+        description:
+          'Filter by specific job ID (tasks where parent_id = job_id). Example: JOBS-AUS1-00002m',
       },
       user_id: {
         type: 'string',
         description: 'Filter by specific user ID',
-      },
-      job_id: {
-        type: 'string',
-        description: 'Filter by specific job ID (tasks where parent_id = job_id)',
-      },
-      task_type: {
-        type: 'string',
-        enum: ['user', 'project'],
-        description: 'Filter by task scope type',
       },
       inc_bugs: {
         type: 'boolean',
@@ -85,7 +80,7 @@ export class GetTasksTool implements MCPTool<GetTasksArgs> {
         description: 'Filter by module name in reference_data or file_path',
       },
     },
-    required: ['project_id'],
+    anyOf: [{ required: ['project_id'] }, { required: ['job_id'] }],
   };
 
   constructor(
@@ -111,20 +106,20 @@ export class GetTasksTool implements MCPTool<GetTasksArgs> {
       'PopTaskTool'
     );
 
-    // Validate required project_id parameter
-    if (!args.project_id) {
+    // Validate required parameters - need either project_id or job_id
+    if (!args.project_id && !args.job_id) {
       const mcpError: MCPError = {
-        code: 'MISSING_PROJECT_ID',
+        code: 'MISSING_REQUIRED_PARAMETER',
         message:
-          'project_id is required. Check your .env file for DEFAULT_PROJECT_ID or look in the auth context.',
+          'Either project_id or job_id is required. Provide project_id for all project tasks or job_id for specific job tasks.',
         details: {
           requestId,
           traceId,
-          hint: 'Look for DEFAULT_PROJECT_ID in your .env file or provide project_id parameter',
+          hint: 'Use project_id for all project tasks, or job_id for tasks in a specific job',
         },
       };
 
-      this.logger.error('GetTasks failed - missing project_id', mcpError, 'GetTasksTool');
+      this.logger.error('GetTasks failed - missing required parameter', mcpError, 'GetTasksTool');
 
       return {
         content: [
@@ -339,11 +334,6 @@ export class GetTasksTool implements MCPTool<GetTasksArgs> {
     if (args.job_id) {
       conditions.push(`t.parent_id = $${paramIndex++}`);
       params.push(args.job_id);
-    }
-
-    if (args.task_type) {
-      conditions.push(`t.parent_type = $${paramIndex++}`);
-      params.push(args.task_type);
     }
 
     if (args.search_string) {

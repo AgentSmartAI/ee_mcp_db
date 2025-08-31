@@ -5,6 +5,7 @@
 
 import { StructuredLogger } from '../logging/StructuredLogger.js';
 import { MCPTool, ToolResult, ToolContext } from '../types/index.js';
+import { HelpArgs } from '../types/ToolArguments.js';
 
 export class HelpTool implements MCPTool {
   name = 'help';
@@ -37,7 +38,7 @@ export class HelpTool implements MCPTool {
     );
   }
 
-  async execute(args: any, context?: ToolContext): Promise<ToolResult> {
+  async execute(args: HelpArgs, context?: ToolContext): Promise<ToolResult> {
     const startTime = Date.now();
     const { topic } = args || {};
 

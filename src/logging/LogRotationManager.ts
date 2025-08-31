@@ -9,7 +9,7 @@ import path from 'path';
 import { StructuredLogger } from './StructuredLogger.js';
 
 export class LogRotationManager {
-  private cleanupInterval: NodeJS.Timeout | null = null;
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private logDir: string,

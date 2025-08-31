@@ -3,8 +3,6 @@
  * Can write to files with daily rotation OR directly to PostgreSQL database.
  */
 
-import path from 'path';
-
 import { Pool } from 'pg';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
@@ -258,7 +256,7 @@ export class StructuredLogger {
     metadata?: LogMetadata | Error,
     module?: string
   ): void {
-    const logData: any = {
+    const logData: Record<string, unknown> = {
       level: level.toLowerCase(),
       message,
       module,
@@ -284,22 +282,23 @@ export class StructuredLogger {
     // Use the appropriate log level method
     switch (level) {
       case 'ERROR':
-        (this.logger as any).error(logData);
+        this.logger.error(logData);
         break;
       case 'WARN':
-        (this.logger as any).warn(logData);
+        this.logger.warn(logData);
         break;
       case 'INFO':
-        (this.logger as any).info(logData);
+        this.logger.info(logData);
         break;
       case 'DEBUG':
-        (this.logger as any).debug(logData);
+        this.logger.debug(logData);
         break;
       case 'TRACE':
-        (this.logger as any).trace(logData);
+        // Winston doesn't have trace, use debug instead
+        this.logger.debug(logData);
         break;
       default:
-        (this.logger as any).info(logData);
+        this.logger.info(logData);
     }
   }
 
@@ -319,8 +318,8 @@ export class StructuredLogger {
       _eventLog: true, // Mark as event log
     };
 
-    // Use trace level for all events
-    (this.eventLogger as any).trace(eventData);
+    // Use debug level for all events (winston doesn't have trace)
+    this.eventLogger?.debug(eventData);
   }
 
   /**

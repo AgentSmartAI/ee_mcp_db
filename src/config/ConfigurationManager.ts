@@ -99,7 +99,9 @@ export class ConfigurationManager {
 
     if (useConfigJson && fs.existsSync(configPath)) {
       try {
-        this.logger.debug('[ConfigurationManager] Loading configuration from config.json as fallback');
+        this.logger.debug(
+          '[ConfigurationManager] Loading configuration from config.json as fallback'
+        );
         const configContent = fs.readFileSync(configPath, 'utf8');
         jsonConfig = JSON.parse(configContent);
         this.logger.debug('[ConfigurationManager] Successfully loaded config.json');
@@ -113,10 +115,14 @@ export class ConfigurationManager {
       this.logger.debug('[ConfigurationManager] Building configuration from environment variables');
       this.config = this.buildConfigFromEnv();
     } else if (jsonConfig) {
-      this.logger.debug('[ConfigurationManager] Building configuration from config.json (no env vars found)');
+      this.logger.debug(
+        '[ConfigurationManager] Building configuration from config.json (no env vars found)'
+      );
       this.config = this.buildConfigFromJson(jsonConfig);
     } else {
-      this.logger.error('[ConfigurationManager] No configuration found in environment or config.json');
+      this.logger.error(
+        '[ConfigurationManager] No configuration found in environment or config.json'
+      );
       throw new Error(
         'Configuration required. Set environment variables or provide config.json with USE_CONFIG_JSON=true'
       );
@@ -180,7 +186,7 @@ export class ConfigurationManager {
       features: {
         events: {
           enabled: process.env.FEATURE_EVENTS_ENABLED === 'true',
-          processors: process.env.FEATURE_EVENTS_PROCESSORS?.split(',').filter(p => p) || [],
+          processors: process.env.FEATURE_EVENTS_PROCESSORS?.split(',').filter((p) => p) || [],
           bufferSize: parseInt(process.env.FEATURE_EVENTS_BUFFER_SIZE || '10000'),
         },
         resources: {

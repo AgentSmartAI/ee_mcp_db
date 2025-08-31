@@ -11,7 +11,7 @@
 
 import { EventEmitter } from 'events';
 
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 
 interface LogEntry {
   timestamp: Date;
@@ -22,7 +22,7 @@ interface LogEntry {
   span_id?: string;
   module?: string;
   function?: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   filepath?: string;
 }
 
@@ -57,7 +57,7 @@ export class RemoteLogger extends EventEmitter {
   private config: RemoteLoggerConfig;
   private pool?: Pool;
   private buffer: LogEntry[] = [];
-  private flushTimer?: NodeJS.Timeout;
+  private flushTimer?: ReturnType<typeof setTimeout>;
   private isProcessing = false;
 
   // Circuit breaker state
@@ -236,7 +236,7 @@ export class RemoteLogger extends EventEmitter {
 
     try {
       // Build bulk insert query
-      const values: any[] = [];
+      const values: (string | number | Date | null)[] = [];
       const placeholders: string[] = [];
 
       batch.forEach((log, index) => {
@@ -307,7 +307,7 @@ export class RemoteLogger extends EventEmitter {
     if (this.buffer.length > 0) {
       try {
         await this.flush();
-      } catch (error) {
+      } catch {
         this.emit('error', `Failed to flush ${this.buffer.length} logs during shutdown`);
       }
     }

@@ -382,7 +382,7 @@ export class BatchQueryTool implements MCPTool {
               requestId: context?.requestId,
               queryIndex: i,
               name: query.name,
-              rowCount: result.rowCount,
+              rowCount: result.rowCount ?? undefined,
               executionTime,
             },
             'BatchQueryTool'
@@ -484,7 +484,7 @@ export class BatchQueryTool implements MCPTool {
           results[queryIndex] = {
             name: query.name,
             success: true,
-            rowCount: result.rowCount,
+            rowCount: result.rowCount ?? undefined,
             rows: result.rows,
             executionTime,
           };
